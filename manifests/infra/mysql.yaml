@@ -1,0 +1,27 @@
+# apps/mysql.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata: 
+  name: mysql
+  namespace: argocd
+spec:
+  source:
+    chart: mysql
+    repoURL: https://charts.bitnami.com/bitnami
+    targetRevision: 9.4.11
+    helm:
+      valuesFiles:
+        - values.yaml         # config padrão (exclui senhas)
+        - values.enc.yaml     # SENHAS seladas
+      parameters:
+        - name: auth.existingSecret
+          value: mysql-values
+        - name: auth.existingSecretKey
+          value: values.yaml  # o Secret terá um arquivo values.yaml dentro
+  destination:
+    namespace: sample-app
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

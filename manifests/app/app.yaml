@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: sample-app
+  namespace: argocd
+spec:
+  project: default
+
+  # define de onde vem o chart
+  source:
+    repoURL: https://github.com/<seu-user>/<seu-repo>.git
+    targetRevision: main
+    path: app
+    helm:
+      valueFiles:
+        - values.yaml       # configurações não sensíveis
+        - values.enc.yaml   # suas senhas seladas via SealedSecrets
+
+  # para onde esse chart será implantado
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: app
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
